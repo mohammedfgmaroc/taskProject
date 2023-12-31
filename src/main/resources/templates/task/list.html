@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Task List</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZwTl" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        a {
+            text-decoration: none;
+            color: #0066cc;
+            margin-right: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .create-task-link {
+            display: block;
+            margin-top: 20px;
+            color: #ffffff;
+            background-color: #28a745;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+        }
+        header {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        a {
+            text-decoration: none;
+            color: rgb(0, 128, 255);
+            margin-right: 10px;
+        }
+        .a1 {
+            text-decoration: none;
+            color: rgb(255, 255, 255);
+            margin-right: 10px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        form {
+	        margin-top: 20px;
+	        background-color: #f4f4f4;
+	        padding: 15px;
+	        border-radius: 8px;
+	        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	    }
+	
+	    label {
+	        margin-right: 10px;
+	        font-weight: bold;
+	    }
+	
+	    select {
+	        padding: 8px;
+	        margin-right: 10px;
+	    }
+	
+	    button {
+	        padding: 10px;
+	        background-color: #007bff;
+	        color: #ffffff;
+	        border: none;
+	        border-radius: 4px;
+	        cursor: pointer;
+	    }
+	
+	    button:hover {
+	        background-color: #0056b3;
+	    }
+	    </style>
+	    <script src="https://code.jquery.com/jquery-3.6.4.min.js"
+	            integrity="sha256-oP6HI/t1I4+2ZlXk6lIqX2HjNlFfQ7Yo8HqF5t8L6U4="
+	            crossorigin="anonymous"></script>
+	    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+	            integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+	            crossorigin="anonymous"></script>
+	    
+       
+</head>
+<body>
+	<header>
+        <h2>Welcome, [[${user.getUsername()}]]</h2>
+        <span sec:authorize="isAuthenticated">
+            <a class="a1" th:href="@{/logout}">Logout</a>
+        </span>
+    </header>
+    <script>
+        // Function to show notifications
+        function showNotifications() {
+            var modal = document.getElementById('notificationModal');
+            modal.style.display = 'block';
+        }
+
+        // Function to close the modal
+        function closeModal() {
+            var modal = document.getElementById('notificationModal');
+            modal.style.display = 'none';
+        }
+    </script>
+    <button type="button" onclick="showNotifications()">Show Notifications</button>
+
+    <!-- Modal to display notifications -->
+    <div id="notificationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Notifications</h3>
+            <ul th:each="notification : ${notifications}">
+                <li th:text="${notification}"></li>
+            </ul>
+        </div>
+    </div>
+    <form method="get" action="/tasks">
+	    <!-- Priority filter -->
+	    <label for="priority">Priority:</label>
+	    <select id="priority" name="priority">
+	        <option value="">All</option>
+	        <option th:each="p : ${priorities}" th:value="${p}" th:text="${p}"></option>
+	    </select>
+	
+	    <!-- Status filter -->
+	    <label for="status">Status:</label>
+	    <select id="status" name="status">
+	        <option value="">All</option>
+	        <option th:each="s : ${statuses}" th:value="${s}" th:text="${s}"></option>
+	    </select>
+		<label for="search">Search:</label>
+    	<input type="text" id="search" name="search" th:value="${searchKeyword}" placeholder="Enter keywords">
+	    <button type="submit">Apply Filters</button>
+	</form>
+    <h2>Task List</h2>
+    <table>
+        <thead>
+           <tr>
+			    <th>Title</th>
+			    <th>Description</th>
+			    <th>Due Date</th>
+			    <th>Priority</th> <!-- New field -->
+			    <th>Category</th> <!-- New field -->
+			    <th>Status</th> <!-- New field -->
+			    <th>Actions</th>
+			</tr>
+        </thead>
+        <tbody>
+    <tr th:each="task : ${tasks}">
+        <td th:text="${task.title}"></td>
+        <td th:text="${task.description}"></td>
+        <td th:text="${#dates.format(task.dueDate, 'yyyy-MM-dd')}"></td>
+        <td th:text="${task.priority}"></td>
+        <td th:text="${task.category}"></td>
+        <td th:text="${task.status}"></td>
+        <td>
+            <a th:href="@{/tasks/{id}/edit(id=${task.id})}">Edit</a> |
+            <a th:href="@{/tasks/{id}/delete(id=${task.id})}">Delete</a>
+        </td>
+    </tr>
+</tbody>
+    </table>
+    <a th:href="@{/tasks/create}" class="create-task-link">Create New Task</a><br>
+    <a href="/export/pdf" target="_blank">Export to PDF</a>
+</body>
+</html>
+

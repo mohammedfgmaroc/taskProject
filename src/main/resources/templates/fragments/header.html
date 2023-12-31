@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    
+</head>
+<body>
+    <header class="bg-primary text-white p-3">
+	    <h2>Welcome, [[${user.getUsername()}]]</h2>
+	    <span sec:authorize="isAuthenticated">
+	        <a th:href="@{/logout}" class="text-white">Logout</a>
+	    </span>
+	</header>
+</body>
+</html>
