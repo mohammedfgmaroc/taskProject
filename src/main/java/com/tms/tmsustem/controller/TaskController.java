@@ -51,6 +51,7 @@ public class TaskController {
 	@Autowired
     private NotificationService notificationService;
 	
+	
 	@GetMapping("/registration")
 	public String getRegistrationPage(@ModelAttribute("user") UserDto userDto) {
 		return "register";
@@ -83,25 +84,33 @@ public class TaskController {
 		    
 		 // Retrieve tasks based on the authenticated user, filter parameters, and search keyword
 	        List<Task> tasks = taskService.findTasksWithFiltersAndSearch(principal.getName(), priority, status, search);
+	     // Use the NotificationService to get tasks due today
+            List<Task> dueTasksToday = notificationService.getDueTasksForToday(tasks);
 	        // Add tasks to the model
 	        model.addAttribute("tasks", tasks);
-	     // Retrieve notifications and add them to the model
-	        List<String> notifications = notificationService.getPendingNotifications();
-	        model.addAttribute("notifications", notifications);
-
-	        // Clear notifications after displaying them
-	        notificationService.clearNotifications();
-	        
 		    model.addAttribute("user", userDetails);
 		 // Add dropdown options for priority, category, and status
 		    model.addAttribute("priorities", Task.Priority.values());
 		    model.addAttribute("statuses", Task.Status.values());
 		    model.addAttribute("searchKeyword", search);
+		 // Add tasks due today to the model
+            model.addAttribute("dueTasksToday", dueTasksToday);
 		}
 
 	    // Return the name of the view template
 	    return "task/list";
 	}
+	
+	@GetMapping("/tasks/calendar")
+    public String showCalendar(Model model, Principal principal) {
+        if (principal != null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(principal.getName());
+            List<Task> tasks = taskService.findTasksByUsername(principal.getName());
+            model.addAttribute("tasks", tasks);
+            model.addAttribute("user", userDetails);
+        }
+        return "task/calendar"; 
+    }
 
     @GetMapping("/tasks/create")
     public String createTaskForm(Model model, Principal principal) {

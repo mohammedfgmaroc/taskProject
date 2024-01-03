@@ -1,9 +1,7 @@
 package com.tms.tmsustem.model;
 
 import java.util.Date;
-
 import org.springframework.format.annotation.DateTimeFormat;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -99,7 +97,5 @@ public class Task {
 		this.user = user;
 	}
 
-    // getters and setters
-    
 }
 
