@@ -98,8 +98,9 @@ header {
             <a th:href="@{/logout}">Logout</a>
         </span>
     </header>
-    <h2>Edit Task</h2>
+    
     <form method="post" th:action="@{/tasks/{id}/edit(id=${task.id})}">
+	<h2>Edit Task</h2>
         <input type="hidden" id="id" name="id" th:value="${task.id}">
         
         <label for="title">Title:</label>
